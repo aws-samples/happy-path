@@ -1,0 +1,14 @@
+{
+  "version": "0",
+  "id": "4d243389-1234-1234-1234-459ef3d88e93",
+  "detail-type": "uploadComplete",
+  "source": "custom.happyPath",
+  "account": "123456789012",
+  "time": "2020-07-03T15:05:00Z",
+  "region": "us-east-1",
+  "resources": [],
+  "detail": {
+     "bucket": "happy-path-upload",
+     "key": "ChIJx849xvC5j4AR8tx7wdHJb4Y/57e2f096-1234-1234-9581-55ef79c6d1bd.jpg"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "Records": [
+      {
+          "eventID": "41e8ff1e298f95da31dd53b4217ce487",
+          "eventName": "MODIFY",
+          "eventVersion": "1.1",
+          "eventSource": "aws:dynamodb",
+          "awsRegion": "us-east-1",
+          "dynamodb": {
+              "ApproximateCreationDateTime": 1594400494,
+              "Keys": {
+                  "SK": {
+                      "S": "b90f8805-79ae-47d3-845d-7660d57f8149"
+                  },
+                  "PK": {
+                      "S": "workflow"
+                  }
+              },
+              "NewImage": {
+                  "created": {
+                      "N": "1594400489040"
+                  },
+                  "SK": {
+                      "S": "b90f8805-79ae-47d3-845d-7660d57f8149"
+                  },
+                  "placeId": {
+                      "S": "ChIJAXebfB8_tokRPH3f9okhDMg"
+                  },
+                  "PK": {
+                      "S": "workflow"
+                  },
+                  "detail": {
+                      "S": "{\"reason\":\"FAILED_MODERATION\",\"reasonDetail\":\"[{\\\"Confidence\\\":96.25624084472656,\\\"Name\\\":\\\"Female Swimwear Or Underwear\\\",\\\"ParentName\\\":\\\"Suggestive\\\"},{\\\"Confidence\\\":96.25624084472656,\\\"Name\\\":\\\"Suggestive\\\",\\\"ParentName\\\":\\\"\\\"}]\"}"
+                  },
+                  "userId": {
+                      "S": "test-user"
+                  },
+                  "objStatus": {
+                      "S": "REJECTED"
+                  }
+              },
+              "OldImage": {
+                  "created": {
+                      "N": "1594400489040"
+                  },
+                  "SK": {
+                      "S": "b90f8805-79ae-47d3-845d-7660d57f8149"
+                  },
+                  "placeId": {
+                      "S": "ChIJAXebfB8_tokRPH3f9okhDMg"
+                  },
+                  "PK": {
+                      "S": "workflow"
+                  },
+                  "userId": {
+                      "S": "test-user"
+                  },
+                  "objStatus": {
+                      "S": "PENDING_UPLOAD"
+                  }
+              },
+              "SequenceNumber": "52856500000000027614296485",
+              "SizeBytes": 553,
+              "StreamViewType": "NEW_AND_OLD_IMAGES"
+          },
+          "eventSourceARN": "arn:aws:dynamodb:us-east-1:123456789012:table/hp-application/stream/2020-06-29T14:29:10.716"
+      }
+  ]
+}

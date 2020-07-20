@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Happy Path - Example workflow 1
+
+Parameters:
+  ApplicationTableName:
+    Type: String
+    Description: Name of application's DynamoDB table
+    Default: hp-application
+
+  S3UploadBucketName:
+    Type: String
+    Description: The name for the S3 upload bucket.
+    Default: 'happy-path-upload'
+
+  S3DistributionBucketName:
+    Type: String
+    Description: The name for the S3 upload bucket.
+    Default: 'happy-path-distribution'
+
+  StreamARN:
+    Type: String
+    Description: The ARN for the DynamoDB table stream.
+    Default: 'arn:aws:dynamodb:us-east-1:123456789012:table/hp-application/stream/2020-06-29T14:29:10.716'
+
+  SharpLayerARN:
+    Type: String
+    Description: The ARN for the Sharp Lambda Layer.
+    Default: 'arn:aws:lambda:us-east-1:123456789012:layer:node-sharp:3'
+
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: nodejs12.x
+    Tags:
+      Application: HappyPath
+
+Resources:
+  #Lambda functions
+  ResizerFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: ../../functions/resizer/
+      Handler: app.handler
+      MemorySize: 2056
+      Layers:
+        - !Ref SharpLayerARN
+      Environment:
+        Variables:
+          OutputBucket: !Ref S3DistributionBucketName
+          TableName: !Ref ApplicationTableName              
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref S3UploadBucketName
+        - S3CrudPolicy:
+            BucketName: !Ref S3DistributionBucketName
+        - DynamoDBWritePolicy:
+            TableName: !Ref ApplicationTableName              
+
+  #Lambda functions
+  PublishFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: ../../functions/publish/
+      Handler: app.handler
+      MemorySize: 128
+      Layers:
+        - !Ref SharpLayerARN
+      Environment:
+        Variables:
+          TableName: !Ref ApplicationTableName              
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref ApplicationTableName       
+
+  # Step Functions state machine
+  v1StateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: ../../statemachines/v1.asl.json
+      DefinitionSubstitutions:
+        ResizerFunctionArn: !GetAtt ResizerFunction.Arn
+        PublishFunctionArn: !GetAtt PublishFunction.Arn
+      Events:
+        UploadComplete:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+              - custom.happyPath
+              detail-type:
+              - uploadComplete
+      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ResizerFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PublishFunction
+        
+
+

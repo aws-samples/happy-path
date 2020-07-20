@@ -1,0 +1,151 @@
+{
+  "Comment": "v4 - Two business types",
+  "StartAt": "Check Dimensions",
+  "States": {
+    "Check Dimensions": {
+      "Type": "Task",
+      "Resource": "${DimensionsFunctionArn}",
+      "Next": "Dimensions Result?"
+    },
+    "Dimensions Result?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.dimensionsResult",
+          "BooleanEquals": true,
+          "Next": "Get place type from DynamoDB"
+        },
+        {
+          "Variable": "$.dimensionsResult",
+          "BooleanEquals": false,
+          "Next": "RecordFailState"
+        }
+      ],
+      "Default": "RecordFailState"
+    },
+
+    "Get place type from DynamoDB": {
+      "Type": "Task",
+      "Resource": "${DDBGetItem}",
+      "Parameters": {
+          "TableName": "${DDBTable}",
+          "Key": {
+              "PK": {
+                  "S.$": "$.detail.placeId"
+              },
+              "SK": {
+                  "S": "listing"
+              }
+          }
+      },
+      "ResultPath": "$.placeRecord",
+      "Next": "Place type?"
+    },
+    "Place type?": {
+      "Type": "Choice",
+      "Choices": [
+        { 
+          "Variable": "$.placeRecord.Item.type.S",
+          "StringEquals": "park",
+          "Next": "Moderator"
+        },
+        {
+          "Variable": "$.placeRecord.Item.type.S",
+          "StringEquals": "restaurant",
+          "Next": "Get labels"
+        },
+        {
+          "Variable": "$.placeRecord.Item.type.S",
+          "StringEquals": "cafe",
+          "Next": "Get labels"
+        },
+        {
+          "Variable": "$.placeRecord.Item.type.S",
+          "StringEquals": "bar",
+          "Next": "Get labels"
+        }                
+      ],
+      "Default": "RecordFailState"
+    },    
+ 
+    "Moderator": {
+      "Type": "Task",
+      "Resource": "${ModeratorFunctionArn}",
+      "Next": "Moderation Result?"
+    },
+    "Moderation Result?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.moderationResult",
+          "BooleanEquals": true,
+          "Next": "Resizer"
+        },
+        {
+          "Variable": "$.moderationResult",
+          "BooleanEquals": false,
+          "Next": "RecordFailState"
+        }
+      ],
+      "Default": "RecordFailState"
+    },
+
+    "Get labels": {
+      "Type": "Task",
+      "Resource": "${LabelsFunctionArn}",
+      "Next": "Check for people"
+    },
+    "Check for people": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.totalPeople",
+          "NumericEquals": 0,
+          "Next": "Resizer"
+        }
+      ],
+      "Default": "RecordFailState"
+    },
+    "Resizer": {
+      "Type": "Task",
+      "Resource": "${ResizerFunctionArn}",
+      "Next": "Publish"
+    },
+    "Publish": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${PublishFunctionArn}",
+        "Payload": {
+          "Input.$": "$"
+        }
+      },
+      "End": true
+    },
+    "RecordFailState": {
+      "Type": "Task",
+      "Resource": "${DDBUpdateItem}",
+      "End": true,
+      "Parameters": {
+          "TableName": "${DDBTable}",
+          "Key": {
+              "PK": {
+                  "S": "workflow"
+              },
+              "SK": {
+                  "S.$": "$.detail.ID"
+              }
+          },
+          "UpdateExpression": "set objStatus = :newStatus, detail = :detail",
+          "ExpressionAttributeValues": {
+            ":newStatus": {
+                "S": "REJECTED"
+            },
+            ":detail": {
+              "S.$": "$.workflowDetail"
+            }
+          }
+      }
+    }
+  }
+}

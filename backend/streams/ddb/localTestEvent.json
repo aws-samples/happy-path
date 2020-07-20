@@ -1,0 +1,72 @@
+{
+  "Records": [
+      {
+          "eventID": "902bcd5816d1a8654c4826f731ca2b33",
+          "eventName": "MODIFY",
+          "eventVersion": "1.1",
+          "eventSource": "aws:dynamodb",
+          "awsRegion": "us-east-1",
+          "dynamodb": {
+              "ApproximateCreationDateTime": 1593631095,
+              "Keys": {
+                  "SK": {
+                      "S": "listing"
+                  },
+                  "PK": {
+                      "S": "ChIJ26rBvg2_4okRqS0h3-hOhhE"
+                  }
+              },
+              "NewImage": {
+                  "lng": {
+                      "N": "-70.754409"
+                  },
+                  "created": {
+                      "N": "1593526807832"
+                  },
+                  "SK": {
+                      "S": "listing"
+                  },
+                  "name": {
+                      "S": "Aldrich Parkk"
+                  },
+                  "vicinity": {
+                      "S": "371 Court Street, Portsmouth"
+                  },
+                  "PK": {
+                      "S": "ChIJ26rBvg2_4okRqS0h3-hOhhE"
+                  },
+                  "lat": {
+                      "N": "43.0766217"
+                  }
+              },
+              "OldImage": {
+                  "lng": {
+                      "N": "-70.754409"
+                  },
+                  "created": {
+                      "N": "1593526807832"
+                  },
+                  "SK": {
+                      "S": "listing"
+                  },
+                  "name": {
+                      "S": "Aldrich Park"
+                  },
+                  "vicinity": {
+                      "S": "371 Court Street, Portsmouth"
+                  },
+                  "PK": {
+                      "S": "ChIJ26rBvg2_4okRqS0h3-hOhhE"
+                  },
+                  "lat": {
+                      "N": "43.0766217"
+                  }
+              },
+              "SequenceNumber": "10440400000000018778526598",
+              "SizeBytes": 285,
+              "StreamViewType": "NEW_AND_OLD_IMAGES"
+          },
+          "eventSourceARN": "arn:aws:dynamodb:us-east-1:123456789012:table/hp-application/stream/2020-06-29T14:29:10.716"
+      }
+  ]
+}

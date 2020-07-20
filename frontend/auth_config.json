@@ -1,0 +1,5 @@
+{
+  "domain": "<< ENTER YOUR VALUE >>",
+  "clientId": "<< ENTER YOUR VALUE >>",
+  "audience": "https://auth0-jwt-authorizer"
+}

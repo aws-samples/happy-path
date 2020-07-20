@@ -1,0 +1,289 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Happy Path - Example application
+
+Parameters:
+  ApplicationTableName:
+    Type: String
+    Description: Name of application's DynamoDB table
+    Default: hp-application
+
+  IoTDataEndpoint:
+    Type: String
+    Description: The IoT data endpoint for the application.
+    Default: a2ty1m17b5znw2-ats.iot.us-east-1.amazonaws.com
+
+  Auth0issuer:
+    Type: String
+    Description: The issuer URL from your Auth0 account.
+    Default: https://dev-y6clwyi3.auth0.com/
+
+  S3UploadBucketName:
+    Type: String
+    Description: The name for the S3 upload bucket.
+    Default: 'happy-path-upload'
+
+  S3DistributionBucketName:
+    Type: String
+    Description: The name for the S3 upload bucket.
+    Default: 'happy-path-distribution'
+
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: nodejs12.x
+    Tags:
+      Application: HappyPath
+
+Resources:
+  # HTTP API
+  MyApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      # HTTP API authorizer - see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapiauth.html
+      Auth:
+        Authorizers:
+          MyAuthorizer:
+            JwtConfiguration:
+              issuer: !Ref Auth0issuer
+              audience:
+                - https://auth0-jwt-authorizer
+            IdentitySource: "$request.header.Authorization"
+        DefaultAuthorizer: MyAuthorizer
+
+      # CORS configuration - this is open for development only and should be restricted in prod.
+      # See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapicorsconfiguration.html   
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - "*"   
+        AllowOrigins: 
+          - "*"      
+
+  ## Lambda functions
+  UploadRequestFunction:
+    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: upload/
+      Handler: request.handler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+          UploadBucket: !Ref S3UploadBucketName
+          TableName: !Ref ApplicationTableName          
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref S3UploadBucketName
+        - DynamoDBWritePolicy:
+            TableName: !Ref ApplicationTableName                 
+      Events:
+        UploadAssetAPI:
+          Type: HttpApi
+          Properties:
+            Path: /images
+            Method: get
+            ApiId: !Ref MyApi
+
+  UploadCompleteFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: upload/
+      Handler: complete.handler
+      MemorySize: 128
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Resource: '*'
+            Action:
+              - events:PutEvents
+      Events:
+        FileUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref S3UploadBucket
+            Events: s3:ObjectCreated:*
+
+  PostLocationFunction: 
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/locations/
+      Handler: post.handler
+      MemorySize: 128
+      Description: Post new location to database
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref ApplicationTableName      
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+          TableName: !Ref ApplicationTableName
+      Events:
+        GetLocations:
+          Type: HttpApi
+          Properties:
+            Path: /locations
+            Method: post
+            ApiId: !Ref MyApi
+            #If you have a default authorizer but want to leave one route open, you can override that here.
+            #Learn more at https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-httpapifunctionauth.html
+            Auth:
+              Authorizer: NONE
+
+  GetLocationsFunction: 
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/locations/      
+      Handler: get.handler
+      MemorySize: 128
+      Description: Returns list of locations from lat/lng query params
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ApplicationTableName      
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+          TableName: !Ref ApplicationTableName
+      Events:
+        GetLocations:
+          Type: HttpApi
+          Properties:
+            Path: /locations
+            Method: get
+            ApiId: !Ref MyApi
+            #If you have a default authorizer but want to leave one route open, you can override that here.
+            #Learn more at https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-httpapifunctionauth.html
+            Auth:
+              Authorizer: NONE
+
+  ## DDB stream processor
+  ProcessDynamoDBStream:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: streams/ddb/
+      Handler: app.handler
+      Description: Updates IoT topics with changes to Questions DDB table        
+      ReservedConcurrentExecutions: 1
+      Environment:
+        Variables:
+          IOT_DATA_ENDPOINT: !Ref IoTDataEndpoint            
+      Policies: 
+        - DynamoDBReadPolicy:
+            TableName: !Ref ApplicationTableName
+        - Statement:
+          - Effect: "Allow"
+            Action: 
+              - "iot:*"
+            Resource: "*"
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt ApplicationTable.StreamArn
+            BatchSize: 100
+            StartingPosition: TRIM_HORIZON
+
+  ## DynamoDB table
+  ApplicationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref ApplicationTableName
+      AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST    
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES       
+
+  ## S3 buckets
+  S3UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3UploadBucketName
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+            - "*"
+          AllowedMethods:
+            - GET
+            - PUT
+            - POST
+            - DELETE
+            - HEAD
+          AllowedOrigins:
+            - "*"
+
+  S3DistributionBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3DistributionBucketName
+
+  # S3BucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     BucketName: !Ref S3DistributionBucketName
+      # Policies:
+      # - Statement:        
+      #   - Effect: Allow
+      #     Action: 's3:GetObject'
+      #     Resource:
+      #       - !Sub "arn:aws:s3:::${S3DistributionBucketName}/*"
+      #     Principal:
+      #       AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"      
+
+  ## CloudFront distribution
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'Happy Path CloudFront distribution'
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: "CloudFront distribution for Happy Path assets"
+        Enabled: true
+        HttpVersion: http2
+        # List of origins for CloudFront distribution
+        Origins:
+          - Id: happy-path-distribution-s3-bucket
+            DomainName: !GetAtt S3DistributionBucket.DomainName
+            S3OriginConfig:
+              # Restrict bucket access using an origin access identity
+              OriginAccessIdentity: 
+                Fn::Sub: 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        DefaultCacheBehavior:
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: happy-path-distribution-s3-bucket
+          ViewerProtocolPolicy : redirect-to-https
+
+## Take a note of the outputs for deploying the workflow templates in this sample application
+Outputs:
+  APIendpoint:
+    Description: HTTP API endpoint URL.
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com"
+  DynamoDBstreamARN:
+    Description: Stream ARN used for workflows.
+    Value: !GetAtt ApplicationTable.StreamArn
+  CloudFrontEndpoint:
+    Description: Endpoint for CloudFront distribution.
+    Value: !Ref 'CloudFrontDistribution'    

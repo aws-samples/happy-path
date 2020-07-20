@@ -1,0 +1,38 @@
+{
+   "Records": [
+       {
+           "eventVersion": "2.1",
+           "eventSource": "aws:s3",
+           "awsRegion": "us-east-1",
+           "eventTime": "2020-07-08T17:24:42.909Z",
+           "eventName": "ObjectCreated:Put",
+           "userIdentity": {
+               "principalId": "AWS:AROA3DTKMGNKP7OCJBACT:happypath-backend-UploadRequestFunction-S5KLA32CXWFB"
+           },
+           "requestParameters": {
+               "sourceIPAddress": "72.21.196.68"
+           },
+           "responseElements": {
+               "x-amz-request-id": "8Y8N4Z8N4M8H4H5W",
+               "x-amz-id-2": "RZ0tHxk/wawNBiyVBc71ia1pX4HBL0uQWuAndjRAd2pt17M38poXj42VGXzmkmc6dUD6faP6brC1HXg7IK8V9biZEJsfrjfi"
+           },
+           "s3": {
+               "s3SchemaVersion": "1.0",
+               "configurationId": "2e28f59c-8532-42fa-a6f0-9dff1f308286",
+               "bucket": {
+                   "name": "happy-path-upload",
+                   "ownerIdentity": {
+                       "principalId": "ASRUZ4ZWI5GFR"
+                   },
+                   "arn": "arn:aws:s3:::happy-path-upload"
+               },
+               "object": {
+                   "key": "ChIJn6yiduG6j4ARBP9ci2gGMws/e6233bf8-fc82-490c-8f24-5b4390e3ae59.jpg",
+                   "size": 302458,
+                   "eTag": "716ff2cb7efd112f606d02746288c788",
+                   "sequencer": "005F060162357DD438"
+               }
+           }
+       }
+   ]
+}

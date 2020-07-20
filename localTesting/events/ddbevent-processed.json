@@ -1,0 +1,46 @@
+{
+    "Records": [
+        {
+            "eventID": "54d6644c1eacf43a5998aada92fcc4f2",
+            "eventName": "INSERT",
+            "eventVersion": "1.1",
+            "eventSource": "aws:dynamodb",
+            "awsRegion": "us-east-1",
+            "dynamodb": {
+                "ApproximateCreationDateTime": 1594400638,
+                "Keys": {
+                    "SK": {
+                        "S": "ba5177b7-68b4-4138-967a-20ca21116fdd"
+                    },
+                    "PK": {
+                        "S": "ChIJM7V6okI_tokRDNVDA6Wvrcg"
+                    }
+                },
+                "NewImage": {
+                    "tileURL": {
+                        "S": "https://happy-path-distribution.s3.amazonaws.com/ChIJM7V6okI_tokRDNVDA6Wvrcg/ba5177b7-68b4-4138-967a-20ca21116fdd-tile.jpg"
+                    },
+                    "created": {
+                        "N": "1594400638296"
+                    },
+                    "SK": {
+                        "S": "ba5177b7-68b4-4138-967a-20ca21116fdd"
+                    },
+                    "PK": {
+                        "S": "ChIJM7V6okI_tokRDNVDA6Wvrcg"
+                    },
+                    "type": {
+                        "S": "jpg"
+                    },
+                    "scaledURL": {
+                        "S": "https://happy-path-distribution.s3.amazonaws.com/ChIJM7V6okI_tokRDNVDA6Wvrcg/ba5177b7-68b4-4138-967a-20ca21116fdd-scaled.jpg"
+                    }
+                },
+                "SequenceNumber": "52847300000000049943649595",
+                "SizeBytes": 418,
+                "StreamViewType": "NEW_AND_OLD_IMAGES"
+            },
+            "eventSourceARN": "arn:aws:dynamodb:us-east-1:123456789012:table/hp-application/stream/2020-06-29T14:29:10.716"
+        }
+    ]
+}

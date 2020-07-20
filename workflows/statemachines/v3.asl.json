@@ -1,0 +1,89 @@
+{
+  "Comment": "v3 - Check dimensions/file type",
+  "StartAt": "Check Dimensions",
+  "States": {
+    "Check Dimensions": {
+      "Type": "Task",
+      "Resource": "${DimensionsFunctionArn}",
+      "Next": "Dimensions Result?"
+    },
+    "Dimensions Result?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.dimensionsResult",
+          "BooleanEquals": true,
+          "Next": "Moderator"
+        },
+        {
+          "Variable": "$.dimensionsResult",
+          "BooleanEquals": false,
+          "Next": "RecordFailState"
+        }
+      ],
+      "Default": "RecordFailState"
+    },
+    "Moderator": {
+      "Type": "Task",
+      "Resource": "${ModeratorFunctionArn}",
+      "Next": "Moderation Result?"
+    },
+    "Moderation Result?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.moderationResult",
+          "BooleanEquals": true,
+          "Next": "Resizer"
+        },
+        {
+          "Variable": "$.moderationResult",
+          "BooleanEquals": false,
+          "Next": "RecordFailState"
+        }
+      ],
+      "Default": "RecordFailState"
+    },
+    "Resizer": {
+      "Type": "Task",
+      "Resource": "${ResizerFunctionArn}",
+      "Next": "Publish"
+    },
+    "Publish": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${PublishFunctionArn}",
+        "Payload": {
+          "Input.$": "$"
+        }
+      },
+      "End": true
+    },
+    "RecordFailState": {
+      "Type": "Task",
+      "Resource": "${DDBUpdateItem}",
+      "End": true,
+      "Parameters": {
+          "TableName": "${DDBTable}",
+          "Key": {
+              "PK": {
+                  "S": "workflow"
+              },
+              "SK": {
+                  "S.$": "$.detail.ID"
+              }
+          },
+          "UpdateExpression": "set objStatus = :newStatus, detail = :detail",
+          "ExpressionAttributeValues": {
+            ":newStatus": {
+                "S": "REJECTED"
+            },
+            ":detail": {
+              "S.$": "$.workflowDetail"
+            }
+          }
+      }
+    }
+  }
+}

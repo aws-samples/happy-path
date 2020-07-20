@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SDK Layer
+
+Resources:
+  SDKlayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Sharp
+      Description: Sharp NPM package.
+      ContentUri: './layer'
+      CompatibleRuntimes:
+        - nodejs12.x
+      LicenseInfo: 'Available under the Apache-2.0 license.'
+      RetentionPolicy: Retain
+    
