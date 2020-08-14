@@ -16,7 +16,7 @@ Parameters:
   Auth0issuer:
     Type: String
     Description: The issuer URL from your Auth0 account.
-    Default: https://dev-y6clwyi3.auth0.com/
+    Default: https://dev-y6clwyi3.us.auth0.com/
 
   S3UploadBucketName:
     Type: String
