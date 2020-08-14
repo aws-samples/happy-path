@@ -66,10 +66,20 @@ Resources:
             Statement: 
               - Effect: "Allow"
                 Action:
-                  - "mobileanalytics:PutEvents"
                   - "cognito-sync:*"
-                  - "iot:*"
+                Resource: !Join [ "", [ "arn:aws:cognito-sync:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":identitypool/", !Ref IdentityPool] ]
+              - Effect: Allow
+                Action:
+                  - iot:Connect
+                Resource: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":client/happyPath-*" ] ]
+              - Effect: Allow
+                Action:
+                  - iot:Subscribe
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iot:Receive
+                Resource: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":topic/*" ] ]
 
   # Create a role for authorized acces to AWS resources. 
   CognitoAuthorizedRole:
@@ -95,11 +105,20 @@ Resources:
             Statement: 
               - Effect: "Allow"
                 Action:
-                  - "mobileanalytics:PutEvents"
                   - "cognito-sync:*"
-                  - "cognito-identity:*"
+                Resource: !Join [ "", [ "arn:aws:cognito-sync:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":identitypool/", !Ref IdentityPool] ]
+              - Effect: Allow
+                Action:
+                  - iot:Connect
+                Resource: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":client/happyPath-*" ] ]
+              - Effect: Allow
+                Action:
+                  - iot:Subscribe
                 Resource: "*"
-
+              - Effect: Allow
+                Action:
+                  - iot:Receive
+                Resource: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":topic/*" ] ]
   # Assigns the roles to the Identity Pool
   IdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
