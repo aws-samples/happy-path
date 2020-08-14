@@ -126,7 +126,7 @@ npm install
 4. After installation is complete, you can run the application locally:
 
 ```
-npm run build
+npm run serve
 ```
 
 ### 5. Installing the workflows
