@@ -44,19 +44,19 @@ Vue.component('iot', IoT)
 Vue.config.productionTip = false
 Vue.prototype.$appName = 'Happy Path'
 // Google Maps key - see https://developers.google.com/maps/documentation/javascript/get-api-key
-Vue.prototype.$GoogleMapsKey = '<< ENTER YOUR VALUE >>'
+Vue.prototype.$GoogleMapsKey = '<< ENTER YOUR ID>>'
 
 // ** Websocket connection **
 //  PoolId: Retrieve this with the CLI command: aws cognito-identity list-identity-pools --max-results 10
-Vue.prototype.$poolId = '<< ENTER YOUR VALUE >>', // 'YourCognitoIdentityPoolId'
+Vue.prototype.$poolId = '<< ENTER YOUR ID>>', // 'YourCognitoIdentityPoolId'
 //  IoTendpoint: Retrieve this with the CLI command: aws iot describe-endpoint --endpoint-type iot:Data-ATS
-Vue.prototype.$host = '<< ENTER YOUR VALUE >>', // 'YourAwsIoTEndpoint', e.g. 'prefix.iot.us-east-1.amazonaws.com'
+Vue.prototype.$host = '<< ENTER YOUR ID>>', // 'YourAwsIoTEndpoint', e.g. 'prefix.iot.us-east-1.amazonaws.com'
 
 // ** Backend config **
 // API Gateway endpoint - e.g. https://abc123abc.execute-api.us-east-1.amazonaws.com
-Vue.prototype.$APIurl = '<< ENTER YOUR VALUE >>'
+Vue.prototype.$APIurl = '<< ENTER YOUR ID>>'
 //  This is the region you selected in the SAM template deployment.
-Vue.prototype.$region = 'us-east-1' // Your region
+Vue.prototype.$region = '<< ENTER YOUR REGION>>' // Your region
 
 // ** Business mode **
 //  This determines which business types appear in the map.

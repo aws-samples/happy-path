@@ -1,4 +1,4 @@
-# my-app
+# happy-path
 
 ## Project setup
 ```

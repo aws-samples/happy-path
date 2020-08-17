@@ -5,7 +5,7 @@
       <!-- Logo -->
       <div class="d-flex align-center">
         <v-img
-          alt="Ask Around Me"
+          alt="Happy Path"
           class="shrink mr-2"
           contain
           src="./assets/logo.png"
@@ -35,12 +35,12 @@
     </v-app-bar>
 
     <!-- Main content -->
-    <v-content>
+    <v-main>
       <v-container class="pa-0 ma-0">
         <!-- Inject view from current path here -->
         <router-view v-if="authReady"></router-view>
       </v-container>
-    </v-content>
+    </v-main>
     <iot/>
     <snackbar/>
     

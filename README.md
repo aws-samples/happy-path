@@ -22,7 +22,7 @@ Important: this application uses various AWS services and there are costs associ
 ## Requirements
 
 * AWS CLI already configured with Administrator permission
-* [AWS SAM CLI installed](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) - minimum version 0.48.
+* [AWS SAM CLI installed](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) - **minimum version 0.48**.
 * [NodeJS 12.x installed](https://nodejs.org/en/download/)
 * [Vue.js and Vue CLI installed](https://vuejs.org/v2/guide/installation.html)
 * [Google Maps API key](https://developers.google.com/maps/documentation/javascript/get-api-key)
@@ -32,7 +32,10 @@ Important: this application uses various AWS services and there are costs associ
 
 1. [Create an AWS account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html) if you do not already have one and login.
 
-2. Clone the repo onto your local development machine using `git clone`.
+2. Clone the repo onto your local development machine:
+```
+git clone https://github.com/aws-samples/happy-path
+```
 
 ### 1. Installing the realtime stack
 
@@ -41,7 +44,7 @@ Important: this application uses various AWS services and there are costs associ
 cd backend
 sam deploy --guided --template-file realtime.yaml
 ```
-During the prompts, enter `HappyPath-realtime` for the Stack Name, enter your preferred Region, and accept the defaults for the remaining questions. 
+During the prompts, enter `happy-path-realtime` for the Stack Name, enter your preferred Region, and accept the defaults for the remaining questions. 
 
 2. Retrieve the IoT endpointAddress - note this for the frontend installation:
 ```
@@ -63,7 +66,7 @@ cd ./backend/layers/sharp-layer
 2. Install and prepare package:
 ```
 npm install
-mkdir ./layer/nodejs –p
+mkdir -p ./layer/nodejs 
 mv ./node_modules ./layer/nodejs
 ```
 3. Deploy the SAM template to create the layer:
@@ -89,7 +92,7 @@ sam deploy --guided
 ```
 
 When prompted for parameters, enter:
-- Stack Name: HappyPath-backend
+- Stack Name: happy-path-backend
 - AWS Region: your preferred AWS Region (e.g. us-east-1)
 - ApplicationTableName: leave as default
 - S3UploadBucketName: enter a unique name for your bucket. 
@@ -133,12 +136,12 @@ npm run serve
 
 To show the progression of increasingly complex workflows, this repo uses four separate AWS Step Functions state machines. Part 3 of the blog series shows how to deploy each one. The deployment pattern is the same for each version.
 
-- Workflow SAM templates are in workflows/templates.
-- State machine definitions are stored in workflows/state machines.
+- Workflow SAM templates are in `workflows/templates`.
+- State machine definitions are stored in `workflows/state machines`.
 
 To deploy:
-1. Remove any prevent workflow versions by deleting their CloudFormation stack.
-2. Change directory to the version of the workflow you want to deploy:
+1. Remove any previous workflow version by deleting their CloudFormation stack.
+2. Change directory to the version of the workflow you want to deploy, e.g.:
 ```
 cd workflows/templates/v1
 ```
@@ -151,7 +154,7 @@ sam deploy --guided
 
 ## Next steps
 
-[A sample photo dataset](https://jbesw-public-downloads.s3.us-east-2.amazonaws.com/happy-path-photos-dataset.zip) is provided for download. These photos are provided by the blog author (James Beswick) under the [Creative Commons Attribution 4.0 International license](http://creativecommons.org/licenses/by/4.0/).
+[A sample photo dataset](https://jbesw-public-downloads.s3.us-east-2.amazonaws.com/happy-path-photos-dataset.zip) is provided for download. These photos are provided by the blog author ([James Beswick](https://twitter.com/jbesw)) under the [Creative Commons Attribution 4.0 International license](http://creativecommons.org/licenses/by/4.0/).
 
 The AWS Compute Blog series and video link at the top of this README file contains additional information about the application design and architecture.
 
