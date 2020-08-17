@@ -6,7 +6,7 @@ This app is designed to help state parks and nonprofit organizations digitalize 
 
 The frontend displays and captures images for different locations, and the backend processes this data according to a set of business rules. This web application is designed for smartphones so it’s used while visitors are at the locations. 
 
-To learn more about how this application works, see the 3-part series on the AWS Compute Blog: TBD.
+To learn more about how this application works, see the 3-part series on the AWS Compute Blog: https://aws.amazon.com/blogs/compute/using-serverless-backends-to-iterate-quickly-on-web-apps-part-1/.
 
 Important: this application uses various AWS services and there are costs associated with these services after the Free Tier usage - please see the [AWS Pricing page](https://aws.amazon.com/pricing/) for details. You are responsible for any AWS costs incurred. No warranty is implied in this example.
 
