@@ -86,7 +86,7 @@ From the command line, deploy the SAM template. Note that your SAM version must 
 Run:
 
 ```
-cd .. 
+cd ../.. 
 sam build
 sam deploy --guided
 ```
